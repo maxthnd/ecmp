@@ -14,5 +14,32 @@ services:
       retries: 3
     networks:
       - ecmp-network
+  backend:
+    container_name: ecmp-api
+    build:
+      context: ecmp-dev/.
+      dockerfile: Dockerfile
+    image: ecmp-dev:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecmp-network
+  frontend:
+    container_name: ecmp-frontend
+    build:
+      context: ecmp-frontend/.
+      dockerfile: Dockerfile
+    image: ecmp-frontend:latest
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+    networks:
+      - ecmp-network
 networks:
   ecmp-network:
